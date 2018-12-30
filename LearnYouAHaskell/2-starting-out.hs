@@ -87,9 +87,8 @@ mult13 = [13,26..13 * 24]
 mult13' = take 24 [13,26..]
 
 -- Functions that produce infinite lists
-xsCycle = take 7 (cycle xs) -- [5,4,3,2,1,5,4]
-xsRepeat = take 6 (repeat 5) -- [5,5,5,5,5,5]
--- Note: It's simpler to use `replicate 6 5` for this
+xsCycle = cycle xs -- [5,4,3,2,1..]
+xsRepeat = repeat 5 -- [5,5,5..]
 
 
 {- LIST COMPREHENSIONS -}
