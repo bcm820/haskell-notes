@@ -50,12 +50,11 @@ elem' a (x:xs)
     | otherwise = elem' a xs
 
 -- `quicksort`
--- a sorted list has all values smaller than (or equal to) the head of the list in front (and those values are sorted),
--- then comes the head of the list in the middle
--- then come all the values that are bigger than the head (they're also sorted)
+-- a sorted list has all values LTE the head,
+-- then comes the head,
+-- then all the values GTE the head
 quicksort :: (Ord a) => [a] -> [a]
-quicksort [] = []
-quicksort (x:xs) =
-  let smallerSorted = quicksort [ a | a <- xs, a <= x ]
-      biggerSorted = quicksort [ a | a <- xs, a > x ]
-  in  smallerSorted ++ [x] ++ biggerSorted
+quicksort []     = []
+quicksort (x:xs) = quicksort [ a | a <- xs, a <= x ]
+                   ++ [x] ++
+                   quicksort [ a | a <- xs, a > x ]
