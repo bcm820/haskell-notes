@@ -57,3 +57,31 @@ Ratiorg needs statues of sizes 4, 5 and 7.
 -}
 makeArrayConsecutive2 :: [Int] -> Int
 makeArrayConsecutive2 xs = length ([(minimum xs)..(maximum xs)]) - length xs
+
+
+{-
+Given a sequence of integers as an array,
+determine whether it is possible to obtain a strictly increasing
+sequence by removing no more than one element from the array.
+For sequence = [1, 3, 2, 1], the output should be false.
+For sequence = [1, 3, 2], the output should be true.
+You can remove 3 from the array to get the strictly increasing sequence [1, 2].
+Alternately, you can remove 2 to get the strictly increasing sequence [1, 3].
+-}
+
+almostIncreasingSequence :: [Int] -> Bool
+almostIncreasingSequence [] = True
+almostIncreasingSequence [_] = True
+almostIncreasingSequence [_,_] = True
+almostIncreasingSequence (a:b:c:ds)
+    | a < b && b < c = almostIncreasingSequence (b:c:ds)
+    | a < b && a < c = isIncreasing (a:c:ds)
+    | a > b && b < c = isIncreasing (b:c:ds)
+    | a < b && c <= a = isIncreasing (a:b:ds)
+    | otherwise = False
+
+isIncreasing :: [Int] -> Bool
+isIncreasing [_] = True
+isIncreasing (a:b:cs)
+    | a < b = isIncreasing (b:cs)
+    | otherwise = False
