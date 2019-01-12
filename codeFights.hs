@@ -155,15 +155,13 @@ should be [-1, 150, 160, 170, -1, -1, 180, 190].
 -}
 
 reinsert :: ([Int], [Int]) -> Int -> ([Int], [Int])
-reinsert ([], ys) x = ([],x:ys)
-reinsert (ps@(p:qs),ys) x
-  | x == -1   = (ps,(x:ys))
-  | otherwise = (qs,(p:ys))
+reinsert ([], ys) x     = ([], x:ys)
+reinsert (ps,ys) (-1)   = (ps, (-1:ys))
+reinsert ((p:qs), ys) x = (qs, (p:ys))
 
 sortByHeight :: [Int] -> [Int]
-sortByHeight xs =
-  let ps = sort (filter (/=(-1)) xs)
-  in  reverse $ snd (foldl reinsert (ps,[]) xs)
+sortByHeight xs = reverse $ snd (foldl reinsert (ps,[]) xs)
+  where ps = sort (filter (/=(-1)) xs)
 
 -- A similar solution by Ciunkos:
 sortByHeight' a = zipC a (sort (filter (>= 0) a)) where
@@ -203,10 +201,9 @@ reverseInParentheses s
 
 findParens :: [Char] -> [(Int, Int)]
 findParens s = foldl findRanges [] (zip s [0..length s - 1]) where
-  findRanges xs (c, idx)
-    | c == '('  = ((idx, -1):xs)
-    | c == ')'  = tail xs ++ [(fst (head xs), idx)]
-    | otherwise = xs
+  findRanges xs ('(', idx) = ((idx, -1):xs)
+  findRanges xs (')', idx) = tail xs ++ [(fst (head xs), idx)]
+  findRanges xs (_, _)     = xs
 
 splitTwice :: Int -> Int -> [Char] -> ([Char], [Char], [Char])
 splitTwice a b s = (x, y1, y2) where
@@ -218,3 +215,12 @@ reverseInParentheses' s =
   filter isAlpha $ foldl revSubList s (findParens s) where
   revSubList s (a, b)   = left ++ reverse inner ++ right where
     (left, inner, right)  = splitTwice a b s
+
+-- Nice solution from `bubbler`
+
+reverseInParentheses'' s = rev s [] where
+  rev [] stk = reverse stk
+  rev (')':t) stk =
+    let (s1, s2) = span (/='(') stk
+    in rev t (reverse s1 ++ tail s2)
+  rev (h:t) stk = rev t (h:stk)
