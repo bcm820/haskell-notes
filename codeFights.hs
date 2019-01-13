@@ -103,8 +103,8 @@ For matrix = [[0, 1, 1, 2],
 -}
 
 matrixElementsSum :: [[Int]] -> Int
-matrixElementsSum matrix = sum $ map sumRow $ transpose matrix
-  where sumRow row = sum $ takeWhile (>0) row
+matrixElementsSum = sum . map sumRow . transpose
+  where sumRow = sum . takeWhile (>0)
 
 {-
 Given an array of strings, return another array
@@ -220,8 +220,7 @@ reverseInParentheses' s =
 -- Nice solution from `bubbler`
 
 reverseInParentheses'' s = rev s [] where
-  rev [] stk = reverse stk
-  rev (')':t) stk =
-    let (s1, s2) = span (/='(') stk
-    in rev t (reverse s1 ++ tail s2)
+  rev [] stk      = reverse stk
+  rev (')':t) stk = rev t (reverse s1 ++ tail s2)
+    where (s1, s2) = span (/='(') stk
   rev (h:t) stk = rev t (h:stk)
