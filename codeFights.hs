@@ -34,8 +34,8 @@ should be 21 (produced from 7 and 3).
 
 adjacentElementsProduct :: [Int] -> Int
 adjacentElementsProduct xs =
-  maximum (init (map fst (foldl tupleAcc initVal (tail xs)))) where
-    tupleAcc acc x = (snd (head acc)*x, x) : acc
+  maximum . init . map fst $ foldl tupleAcc initVal $ tail xs where
+    tupleAcc acc x = (x * snd (head acc), x) : acc
     initVal = [(0, head xs)]
 
 -- Other solutions by nickie, ameiva, code_g5:
@@ -160,14 +160,15 @@ reinsert (ps,ys) (-1)   = (ps, (-1:ys))
 reinsert ((p:qs), ys) x = (qs, (p:ys))
 
 sortByHeight :: [Int] -> [Int]
-sortByHeight xs = reverse $ snd (foldl reinsert (ps,[]) xs)
-  where ps = sort (filter (/=(-1)) xs)
+sortByHeight xs = reverse $ snd $ foldl reinsert (ps,[]) xs
+  where ps = sort . filter (/=(-1)) $ xs
 
 -- A similar solution by Ciunkos:
-sortByHeight' a = zipC a (sort (filter (>= 0) a)) where
+sortByHeight' a = zipC a $ sort . filter (>= 0) $ a where
   zipC (a:as) (b:bs)
     | a >= 0    = b : zipC as bs
     | otherwise = a : zipC as (b:bs)
+  zipC a      _      = a
 
 {-
 Write a function that reverses characters in (possibly nested) parentheses
@@ -195,7 +196,7 @@ reverseInParentheses s
     evalParens (left, inner, right)
       | hasNoParen inner  = left ++ reverse inner ++ right
       | otherwise         = left ++ innerTrio ++ right where
-        innerTrio = reverse (evalParens (splitAtParens inner))
+        innerTrio = reverse . evalParens . splitAtParens $ inner
 
 -- ATTEMPT #2 (works!)
 
