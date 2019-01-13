@@ -118,8 +118,10 @@ twoParams = zipWith (\a b -> (a * 3) / b) [1,2,3] [1,2,3]
 pMatch = map (\(a,b) -> a + b) [(1,2),(3,4)]
 
 
-{- FOLDS -}
--- Folds implement the common recursive pattern on lists
+{-
+FOLDS
+Folds implement the common recursive pattern on lists
+-}
 
 -- `foldl`: Left fold combines the list from the left side
 sum' :: (Num a) => [a] -> a
@@ -177,3 +179,52 @@ Note that `filter` does not work on infinite lists
 since it has to test each element in the list.
 -}
 sqrtSums = length (takeWhile (<1000) (scanl1 (+) (map sqrt [1..]))) + 1
+
+
+{-
+FUNCTION APPLICATION & COMPOSITION
+`$` - right-associative function application
+`.` - right-associative function composition
+-}
+
+-- Instead of using parentheses...
+-- i.e. sqrt (3 + 4 + 9)
+ex1 = sqrt $ 3 + 4 + 9
+
+-- Pass an arg into a list of functions
+ex2 = map ($3) [(4+), (10*), (^2)] -- [7.0, 30.0, 9.0]
+
+-- Instead of using lambdas (all the time)
+-- i.e. map (\x -> negate (abs x)) [5,-7,2]
+ex3 = map (negate . abs) [5,-7,2] -- [-5,-7,-2]
+
+-- When composing fns that have several parameters,
+-- left-associative fn composition requires many parens.
+-- We can partially apply such fns so that each takes 1 arg.
+
+-- i.e. sum (replicate 5 (max 6.7 8.9))
+ex4 = sum . replicate 5 . max 6.7 $ 8.9
+-- replicate 5 times the max between 6.7 and some n (8.9 here)
+-- then with this new list of 5, sum the results
+
+-- i.e. 6 + (product (map (*3) (zipWith (+) [1,2,3] [4,5,6])))
+ex5 = (+6) . product . map (*3) . zipWith (+) [1,2,3] $ [4,5,6]
+-- zip [1,2,3] and [4,5,6] by addition
+-- multiply each element of the list by 3
+-- find the product of the list and then add 6
+
+-- Writing in point-free style
+-- i.e. Instead of `ex6 someX = ceiling (negate (tan (cos (max 50 someX))))`
+-- someX is used on both sides, so we can leave out someX from both sides.
+-- but Haskell won't understand `max 50` on its own... unless...
+ex6 = ceiling . negate . tan . cos . max 50
+-- Now just give ex6 a number, and it will...
+-- Find the max between that number and 50
+-- apply cos, then tan, then negate, then ceiling...
+
+{-
+Many times, point free style can be less readable if too complex.
+The prefered style is to use let bindings to give labels
+to intermediary results or split the problem into sub-problems
+and then put it together so that the function makes sense.
+-}
