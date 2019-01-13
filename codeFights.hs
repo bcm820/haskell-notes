@@ -181,10 +181,9 @@ For inputString = "foo(bar)baz(blim)", the output should be "foorabbazmilb".
 
 splitAtParens :: [Char] -> ([Char], [Char], [Char])
 splitAtParens s = (left, inner, right) where
-  sliceOnce p xs = (takeWhile p xs, dropWhile p xs)
   isNotParen c    = c /= '(' && c /= ')'
-  (left, rest)    = sliceOnce isNotParen s
-  (iRight, iMid)  = sliceOnce isNotParen (reverse rest)
+  (left, rest)    = span isNotParen s
+  (iRight, iMid)  = span isNotParen (reverse rest)
   (mid, right)    = (reverse iMid, reverse iRight)
   inner           = filter isNotParen mid
 
@@ -201,7 +200,7 @@ reverseInParentheses s
 -- ATTEMPT #2 (works!)
 
 findParens :: [Char] -> [(Int, Int)]
-findParens s = foldl findRanges [] (zip s [0..length s - 1]) where
+findParens s = foldl findRanges [] (zip s [0..]) where
   findRanges xs ('(', idx) = ((idx, -1):xs)
   findRanges xs (')', idx) = tail xs ++ [(fst (head xs), idx)]
   findRanges xs (_, _)     = xs
@@ -218,9 +217,61 @@ reverseInParentheses' s =
     (left, inner, right)  = splitTwice a b s
 
 -- Nice solution from `bubbler`
-
 reverseInParentheses'' s = rev s [] where
   rev [] stk      = reverse stk
   rev (')':t) stk = rev t (reverse s1 ++ tail s2)
     where (s1, s2) = span (/='(') stk
   rev (h:t) stk = rev t (h:stk)
+
+{-
+Several people in a row need to be divided into two teams.
+The first person goes into team 1, the second goes into team 2,
+the third goes into team 1, the fourth into team 2, and so on.
+Return an array of two integers, where the first is the total
+weight of team 1, and the second element is the total weight
+of team 2 after the division is complete.
+For a = [50, 60, 60, 45, 70], the output should be [180, 105].
+-}
+
+alternatingSums :: [Int] -> [Int]
+alternatingSums as = map sum alts where
+  alts  = foldr inner [[],[]] (zip as [0..])
+  inner (a, i) [xs, ys]
+    | odd i     = [xs, (a:ys)]
+    | otherwise = [(a:xs), ys]
+
+-- Best solution by `vonhyou`
+alternatingSums' [] = [0, 0]
+alternatingSums' (x:xs) = [x+b, a]
+  where [a, b] = alternatingSums xs
+
+{-
+Given a rectangular matrix of characters,
+add a border of asterisks(*) to it.
+For picture = ["abc",
+              "ded"]
+the output should be = ["*****",
+                        "*abc*",
+                        "*ded*",
+                        "*****"]
+-}
+
+addBorder :: [[Char]] -> [[Char]]
+addBorder p = e : map (('*':) . (++ ['*'])) p ++ [e]
+  where e = replicate (length (head p) + 2) '*'
+
+{-
+Two arrays are called similar if one can be obtained from another
+by swapping at most one pair of elements in one of the arrays.
+Given two arrays a and b, check whether they are similar.
+If the arrays are equal, no need to swap any elements (True).
+For a = [1, 2, 3] and b = [2, 1, 3], the output should be True.
+We can obtain b from a by swapping 2 and 1 in b.
+For a = [1, 2, 2] and b = [2, 1, 1], the output should be False.
+Any swap either in a or in b won't make a and b equal.
+-}
+
+areSimilar :: (Eq a) => [a] -> [a] -> Bool
+areSimilar a b = null (a \\ b) && length unequals <= 2
+  where unequals = foldl notEqual [] (zip a b)
+        notEqual a (x, y) = if x == y then a else (1:a)
