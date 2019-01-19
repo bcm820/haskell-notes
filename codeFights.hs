@@ -125,10 +125,11 @@ The strings have 3 common characters - 2 "a"s and 1 "c".
 -}
 
 commonCharacterCount :: [Char] -> [Char] -> Int
-commonCharacterCount s1 s2 = length $ snd (foldl consume (s2, "") s1) where
-  consume ss@(s2, s3) c
-    | elem c s2 = (delete c s2, s3 ++ [c])
-    | otherwise = ss
+commonCharacterCount s1 s2 =
+  length $ snd (foldl consume (s2, "") s1) where
+    consume ss@(s2, s3) c
+      | elem c s2 = (delete c s2, s3 ++ [c])
+      | otherwise = ss
 
 {-
 Ticket numbers usually consist of an even number of digits.
@@ -275,3 +276,41 @@ areSimilar :: (Eq a) => [a] -> [a] -> Bool
 areSimilar a b = null (a \\ b) && length unequals <= 2
   where unequals = foldl notEqual [] (zip a b)
         notEqual a (x, y) = if x == y then a else (1:a)
+
+{-
+You are given an array of integers.
+Find the minimum number of moves required to obtain a
+strictly increasing sequence from the input.
+For inputArray = [1, 1, 1], the output should be 3.
+-}
+
+arrayChange :: [Int] -> Int
+arrayChange (x:[]) = 0
+arrayChange (x:y:xs)
+  | x < y = arrayChange (y:xs)
+  | otherwise = steps + arrayChange (x+1:xs)
+  where steps = x - y + 1
+
+{-
+Given a string, find out if its characters can be rearranged
+to form a palindrome. For inputString = "aabb", the output
+should be true. NOTE: My solution wasn't able to pass 2 tests.
+-}
+
+palindromeRearranging :: [Char] -> Bool
+palindromeRearranging xs = length (nonPairs xs) > 1
+
+nonPairs :: [Char] -> [Char]
+nonPairs [x] = [x]
+nonPairs xs
+  | x == y    = nonPairs zs
+  | otherwise = (x:y:(nonPairs zs))
+  where (x:y:zs) = sort xs
+
+xs = nonPairs "abcad"
+
+-- This one by `stavros_b` passed...
+-- Wasn't aware of the `group` function...
+
+palindromeRearranging =
+  (<= 1) . length . filter odd . map length . group . sort
