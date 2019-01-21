@@ -1,5 +1,7 @@
 import           Data.Char
 import           Data.List
+import           Data.Maybe (fromMaybe)
+import           Text.Read  (readMaybe)
 
 {-
 Given a year, return the century it is in.
@@ -311,6 +313,29 @@ xs = nonPairs "abcad"
 
 -- This one by `stavros_b` passed...
 -- Wasn't aware of the `group` function...
-
 palindromeRearranging =
-  (<= 1) . length . filter odd . map length . group . sort
+  (<=1) . length . filter odd . map length . group . sort
+
+{-
+Given an array of integers, find the maximal absolute
+difference between any two of its adjacent elements.
+For inputArray = [2, 4, 1, 0], the output should be 3.
+-}
+
+arrayMaximalAdjacentDifference :: [Int] -> Int
+arrayMaximalAdjacentDifference xs@(x:ys) =
+  maximum $ zipWith (\x y -> abs $ x - y) xs ys
+
+{-
+Given a string, find out if it is an IPv4 address.
+For s == "172.16.254.1", the output should be True.
+For "172._316_.254.1", the output should be False.
+For ".254.255.0", the output should be False.
+-}
+
+isIPv4Address :: [Char] -> Bool
+isIPv4Address s =
+  length addr == 4 && all (\i -> i>(-1) && i<256) addr
+  where gs = groupBy (\_ b -> b /='.') s
+        dotless = map (\(h:t) -> if h == '.' then t else (h:t)) gs
+        addr = map (fromMaybe (-1) . readMaybe) dotless
